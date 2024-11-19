@@ -36,8 +36,10 @@ mkdir build
 cd build
 cmake ..
 make
-./example
 ```
+
+Set the `base_url` and `api_key` in the example code.
+
 
 ## An Example Usage
 ```cpp
