@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 #include <optional>
-#include "http_client.h"
+#include "http_client.hpp"
 
 class ChatCompletion {
 public:

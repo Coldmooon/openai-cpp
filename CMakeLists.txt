@@ -5,18 +5,41 @@ project(openai-cpp)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Find and include nlohmann_json
+# Options
+option(OPENAI_BUILD_EXAMPLES "Build example programs" ON)
+
+# Find dependencies
+find_package(CURL REQUIRED)
+# find_package(nlohmann_json REQUIRED)
 # include_directories(/path/to/nlohmann-json/include/)
 
-add_library(http_client http_client.cpp)
+# Create header-only library target
+add_library(openai-cpp INTERFACE)
 
+target_include_directories(openai-cpp
+    INTERFACE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+)
 
-# Add source files
-add_executable(example example.cpp)
+target_link_libraries(openai-cpp
+    INTERFACE
+        CURL::libcurl
+        # nlohmann_json::nlohmann_json
+)
 
-# Link CURL and other dependencies for the main program
-find_package(CURL REQUIRED)
-target_link_libraries(example PRIVATE http_client CURL::libcurl)
+# Examples
+if(OPENAI_BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
 
-# Include directories
-target_include_directories(example PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})   
+# Installation rules
+install(FILES openai.hpp
+    DESTINATION include
+)
+
+install(DIRECTORY include/
+    DESTINATION include
+)
+
