@@ -5,6 +5,8 @@
 #include <optional>
 #include "http_client.hpp"
 
+class OpenAI;
+
 class ChatCompletion {
 public:
     struct Message {
@@ -107,31 +109,27 @@ public:
         nlohmann::json response_format_;
     };
 
-    static Response create(const CreateParams& params);
-};
-
-class OpenAI {
-public:
-    OpenAI(const std::string& api_key, const std::string& base_url = "https://api.openai.com/v1")
-        : api_key_(api_key), base_url_(base_url) {}
-
-    struct Chat {
-        Chat(OpenAI& client) : client_(client) {}
+    class Completions {
+    public:
+        Completions(OpenAI& client);  // Declaration only
         
-        ChatCompletion::Response create(const ChatCompletion::CreateParams& params) {
-            auto response = HttpClient::post_json(
-                client_.base_url_,
-                client_.api_key_,
-                params.to_json()
-            );
-            
-            return parse_response(response.json);
-        }
+        Response create(const CreateParams& params);  // Declaration only
 
     private:
         OpenAI& client_;
         
-        ChatCompletion::Response parse_response(const nlohmann::json& json);
+        static Response parse_response(const nlohmann::json& json);
+    };
+};
+
+class OpenAI {
+public:
+    OpenAI(const std::string& api_key, const std::string& base_url = "https://api.openai.com/v1/chat/completions")
+        : api_key_(api_key), base_url_(base_url) {}
+
+    struct Chat {
+        Chat(OpenAI& client) : completions(client) {}
+        ChatCompletion::Completions completions;
     };
 
     Chat chat{*this};
@@ -139,9 +137,22 @@ public:
 private:
     std::string api_key_;
     std::string base_url_;
+    friend class ChatCompletion::Completions;
 };
 
-ChatCompletion::Response OpenAI::Chat::parse_response(const nlohmann::json& json) {
+inline ChatCompletion::Completions::Completions(OpenAI& client) : client_(client) {}
+
+inline ChatCompletion::Response ChatCompletion::Completions::create(const CreateParams& params) {
+    auto response = HttpClient::post_json(
+        client_.base_url_,
+        client_.api_key_,
+        params.to_json()
+    );
+    
+    return parse_response(response.json);
+}
+
+inline ChatCompletion::Response ChatCompletion::Completions::parse_response(const nlohmann::json& json) {
     ChatCompletion::Response response;
     response.id = json["id"].get<std::string>();
     response.model = json["model"].get<std::string>();
