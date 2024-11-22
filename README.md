@@ -69,7 +69,7 @@ int main() {
     messages.push_back(ChatCompletion::Message::user("Hello!"));
 
     // Get completion
-    auto response = client.chat.create(
+    auto response = client.chat.completions.create(
     ChatCompletion::CreateParams()
         .model("gpt-3.5-turbo")
         .messages(messages)

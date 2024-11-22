@@ -24,8 +24,8 @@ int main() {
         // Add user message to history
         messages.push_back(ChatCompletion::Message::user(user_input));
         
-        // Get AI response
-        auto response = client.chat.create(
+        // Updated API call
+        auto response = client.chat.completions.create(
             ChatCompletion::CreateParams()
                 .model("deepseek-chat")
                 .messages(messages)
