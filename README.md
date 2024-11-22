@@ -7,7 +7,17 @@ A Python-like OpenAI API implementation in C++. This library provides a clean an
 ## Features
 
 - Python-like API design for familiar usage patterns
-- Support for chat completions
+```
+// Initialize client
+OpenAI client("api_key", "base_url");
+
+// Create a chat completion
+auto response = client.chat.completions.create();
+
+// Print the response
+std::cout << response.choices[0].message.content << std::endl;
+```
+- Support for OpenAI chat completions endpoint
 - Compatible with OpenAI API and other LLM services
 - Built with modern C++ (C++17)
 
